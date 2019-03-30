@@ -4,7 +4,7 @@
     <link rel="shortcut icon" href="#" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JumperNN</title>
+    <title>Jumper AI</title>
     <style> body {padding: 0; margin: 0;} </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="../p5.min.js"></script>
@@ -14,13 +14,14 @@
     <script src="sketch.js"></script>
     <script src="triangle.js"></script>
     <script src="brain.js"></script>
-    <script src="square.js"></script>
+    <script src="machineSquare.js"></script>
+    <script src="userSquare.js"></script>
     <script src="../nn.js"></script>
     <script src="../matrix.js"></script>
   </head>
 
   <body>
-    <h1>JumperNN Test</h1>
+    <h1>Jumper AI</h1>
     <div id="sketch-holder">
 
     </div>
@@ -31,15 +32,28 @@
     <br>
     Current Score: <span id="cs">0</span>
     <br>
+    <br>
     High Score: <span id="hs">0</span>
     <br>
-    Speed: <input id="speedSlider" type="range" min="1" max="5" value="1"><span id="speed">1</span>
-
     <br>
-
+    Speed: <span id="speed">1</span>
+    <br>
+    <input id="speedSlider" type="range" min="1" max="5" value="1">
+    <br>
+    <br>
     <div>
       <button id="best">Run Best</button>
+      <button id="user">Play</button>
     </div>
+    <br>
+    <h6>Notes</h6>
+    <ul>
+     <li>The Run Best button runs the best trained square. If there is no best square, entire generation is run again.</li>
+     <li>The Play button enables you to play with the computer. It is recommended that you let the computer train for sometime and then play with the best sqaure.</li>
+     <li>Press 'W' to jump while playing.</li>
+     <li>The Reset button resets the entire sketch with the next generation.</li>
+     <li>The Slider increases the speed of the game.</li>
+   </ul>
   </body>
 
   </html>

@@ -108,9 +108,11 @@ let incr = 0;
 let highScore = 0;
 
 let runBest = false;
-let bestSquare = null;
-let userSquare;
 let runUser = false;
+
+let bestSquare = null;
+let user_Square;
+let alive = false;
 
 
 let img;
@@ -121,11 +123,14 @@ function preload() {
 function toggleUser(){
   runUser = !runUser;
 
-  if(runBest){
-    resetSketch();
+  if(runUser){
+    alive = true;
+    user_Square = new UserSquare();
+    nextGeneration();
     userButton.html("Quit Playing");
   }
   else{
+    alive = false;
     nextGeneration();
     userButton.html("Play");
   }
@@ -157,10 +162,11 @@ function keyPressed(){
 function setup() {
     createCanvas(len, brd).parent('sketch-holder');
     for(let i = 0; i < TOTAL; i++){
-      square = new Square();
+      square = new MachineSquare();
       squares[i] = square;
       squares_backup[i] = square;
     }
+    user_Square = new UserSquare();
     highScoreSpan = select('#hs');
     currentScoreSpan = select('#cs');
 
@@ -173,10 +179,12 @@ function setup() {
     speedSpan = select('#speed');
 
     bestButton = select('#best');
+    bestButton.class("badge badge-danger");
     bestButton.mousePressed(toggleBest);
 
-    //userButton = select('#user');
-    //userButton.mousePressed(toggleUser);
+    userButton = select('#user');
+    userButton.class("badge badge-success");
+    userButton.mousePressed(toggleUser);
 }
 
 function draw(){
@@ -185,6 +193,7 @@ function draw(){
   speedSpan.html(speedSlider.value());
 
   for(let i = 1; i <= speedSlider.value(); i++){
+
     for(let i = tri_arr.length - 1; i >= 0; i--) {
       tri_arr[i].move();
       if (tri_arr[i].offScreen()) {
@@ -198,7 +207,7 @@ function draw(){
     bestSquare.move();
 
     for (let j = 0; j < tri_arr.length; j++) {
-      if (tri_arr[j].hits(bestSquare)) {
+      if (tri_arr[j].hits(bestSquare) && !alive) {
         resetSketch();
         break;
       }
@@ -242,6 +251,27 @@ function draw(){
 
   }
 
+  if(runUser){
+
+    user_Square.move();
+    user_Square.display();
+
+  for(let i = 0; i < tri_arr.length; i++){
+    if (tri_arr[i].hits(user_Square)){
+      user_Square.score = 0;
+      alive = false;
+      toggleUser();
+        break;
+      }
+    }
+
+    currentScore = user_Square.score;
+    if(currentScore > highScore){
+      highScore = currentScore;
+    }
+
+  }
+
   currentScoreSpan.html(currentScore);
   highScoreSpan.html(highScore);
 
@@ -259,8 +289,8 @@ function draw(){
     }
   }
 
-  if(!runBest){
-    if(squares.length == 0){
+  if(!runBest && !runUser){
+    if(squares.length == 0 && !alive){
       nextGeneration();
       resetSketch();
     }
@@ -283,4 +313,12 @@ function resetSketch(){
   incr = 0;
   background(back_colour);
   createLine();
+}
+
+function keyTyped() {
+
+  if((key == 'w' || key == 'W') && user_Square.y == 250){
+    user_Square.jump();
+  }
+
 }
