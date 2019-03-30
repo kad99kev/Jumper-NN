@@ -18,13 +18,8 @@ class Triangle{
   }
 
   display(){
-    if(counter%2 == 0){
-      fill(0);
-    }
-    else{
-      fill(250);
-    }
-
+    fill(250);
+    stroke(255, 204, 0);
     for(let i = 0; i <= this.group; i++){
       triangle(this.x1+this.l*i, this.y1, this.x2+this.l*i, this.y2, this.x3+this.l*i, this.y3);
       this.maxX = this.x2+this.l*i;

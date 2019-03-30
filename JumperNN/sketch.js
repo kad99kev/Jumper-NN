@@ -91,7 +91,7 @@
 
 }*/
 
-const TOTAL = 100;
+const TOTAL = 250;
 
 let len = 1000;
 let brd = 400;
@@ -100,18 +100,58 @@ let squares = [];
 let squares_backup = [];
 let tri_arr = [];
 
-let value = 250;
-let counter = 0;
+let back_colour = 0;
 let tri_count = 0;
+let slider;
 
-let max = 0;
 let incr = 0;
 let highScore = 0;
+
+let runBest = false;
+let bestSquare = null;
+let userSquare;
+let runUser = false;
 
 
 let img;
 function preload() {
   img = loadImage('game_over.jpg');
+}
+
+function toggleUser(){
+  runUser = !runUser;
+
+  if(runBest){
+    resetSketch();
+    userButton.html("Quit Playing");
+  }
+  else{
+    nextGeneration();
+    userButton.html("Play");
+  }
+}
+
+function toggleBest(){
+
+  if(bestSquare != null){
+      runBest = !runBest;
+  }
+
+  if(runBest){
+    resetSketch();
+    bestButton.html("Continue Training");
+  }
+  else{
+    nextGeneration();
+    bestButton.html("Run Best");
+  }
+}
+
+function keyPressed(){
+  if(key == 'S'){
+    let square = squares[0];
+    saveJSON(square.brain, 'square.json')
+  }
 }
 
 function setup() {
@@ -123,81 +163,110 @@ function setup() {
     }
     highScoreSpan = select('#hs');
     currentScoreSpan = select('#cs');
+
     let button = createButton('Reset').parent('button');
     button.position(len-55);
     button.class("badge badge-pill badge-dark");
-    button.mousePressed(resetSketch);
+    button.mousePressed(nextGeneration);
 
+    speedSlider = select('#speedSlider');
+    speedSpan = select('#speed');
+
+    bestButton = select('#best');
+    bestButton.mousePressed(toggleBest);
+
+    //userButton = select('#user');
+    //userButton.mousePressed(toggleUser);
 }
 
 function draw(){
-  background(value);
+  background(back_colour);
   createLine();
+  speedSpan.html(speedSlider.value());
 
-  for(let i = tri_arr.length - 1; i >= 0; i--) {
-    tri_arr[i].move();
-    if (tri_arr[i].offScreen()) {
-      tri_arr.splice(i, 1);
+  for(let i = 1; i <= speedSlider.value(); i++){
+    for(let i = tri_arr.length - 1; i >= 0; i--) {
+      tri_arr[i].move();
+      if (tri_arr[i].offScreen()) {
+        tri_arr.splice(i, 1);
+      }
     }
-  }
 
-  for(let i = squares.length - 1; i >= 0; i--){
-    let square = squares[i];
-    square.think(tri_arr);
-    square.move();
+  if(runBest){
+
+    bestSquare.think(tri_arr);
+    bestSquare.move();
 
     for (let j = 0; j < tri_arr.length; j++) {
-      if (tri_arr[j].hits(squares[i])) {
-        squares.splice(i, 1);
+      if (tri_arr[j].hits(bestSquare)) {
+        resetSketch();
         break;
       }
     }
-  }
 
-  if (tri_count % int(76 - 5*incr) == 0) {
-    tri_arr.push(new Triangle());
-  }
-
-  tri_count += 1;
-  if(incr <= 3){
-    incr += 0.001;
-  }
-
-  for(let i = squares.length - 1; i >= 0; i--){
-    if(squares[i].score > highScore){
-      currentScoreSpan.html(squares[i].score);
-      highScore = squares[i].score;
-      highScoreSpan.html(highScore);
+    currentScore = bestSquare.score;
+    if(currentScore > highScore){
+      highScore = currentScore;
     }
+
+    bestSquare.display();
+
+  }else{
+
+    for(let i = squares.length - 1; i >= 0; i--){
+      let square = squares[i];
+      square.think(tri_arr);
+      square.move();
+
+      for (let j = 0; j < tri_arr.length; j++) {
+        if (tri_arr[j].hits(squares[i])) {
+          squares.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    for(let i = squares.length - 1; i >= 0; i--){
+      currentScore = squares[i].score;
+      if(currentScore > highScore){
+        highScore = currentScore;
+        if(squares.length == 1){
+          bestSquare = squares[0];
+        }
+      }
+    }
+
+    for (let i = 0; i < squares.length; i++) {
+      squares[i].display();
+    }
+
   }
+
+  currentScoreSpan.html(currentScore);
+  highScoreSpan.html(highScore);
 
   for (let i = 0; i < tri_arr.length; i++) {
     tri_arr[i].display();
+  }
+
+    if (tri_count % int(76 - 3*incr) == 0) {
+      tri_arr.push(new Triangle());
+    }
+
+    tri_count += 1;
+    if(incr <= 8){
+      incr += 0.001;
+    }
+  }
+
+  if(!runBest){
+    if(squares.length == 0){
+      nextGeneration();
+      resetSketch();
+    }
+  }
+
 }
-
-  for (let i = 0; i < squares.length; i++) {
-    squares[i].display();
-  }
-
-  if(squares.length == 0){
-    nextGeneration();
-    resetSketch();
-  }
-
-}
-
-/*function keyTyped() {
-  if(key == ' ' && counter%2 == 0){
-    value = 0;
-  }
-  else if(key == ' ' && counter%2 != 0){
-    value = 250;
-  }
-  if(sq.y == 250){
-    sq.jump();
-  }
-  counter += 1;
-}*/
 
 function createLine(){
 	stroke(255, 204, 0);
@@ -206,18 +275,12 @@ function createLine(){
 }
 
 function resetSketch(){
-  for(let i = 0; i < TOTAL; i++){
-    square = new Square();
-    squares[i] = square;
-    squares_backup[i] = square;
+  if(bestSquare != null){
+    bestSquare.score = 0;
   }
-  value = 250;
-  counter = 0;
   tri_count = 0;
   tri_arr = [];
-  max = 0;
   incr = 0;
-  background(value);
+  background(back_colour);
   createLine();
-  loop();
 }

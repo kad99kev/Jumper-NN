@@ -1,3 +1,14 @@
+function mutate(x) {
+  if (random(1) < 0.1) {
+    let offset = randomGaussian() * 0.5;
+    let newx = x + offset;
+    return newx;
+  } else {
+    return x;
+  }
+}
+
+
 class Square{
   constructor(brain){
 
@@ -13,9 +24,9 @@ class Square{
 
     if (brain instanceof NeuralNetwork) {
       this.brain = brain.copy();
-      //this.brain.mutate(mutate);
+      this.brain.mutate(mutate);
     } else {
-      this.brain = new NeuralNetwork(3, 8, 2);
+      this.brain = new NeuralNetwork(2, 8, 2);
     }
 
   }
@@ -46,8 +57,8 @@ class Square{
       inputs[0] = map(closest.x1, this.x, width, 0 , 1);
       // x position of furthest triangle group
       inputs[1] = map(closest.maxX, this.x, width, 0, 1);
-      // x position of next triangle group
-      inputs[2] = map(next.x1, this.x, width, 0, 1);
+      // gap between current and next triangle group
+      //inputs[2] = map(next.x1 - closest.maxX, this.x, width, 0, 1);
 
       let action = this.brain.predict(inputs);
 
@@ -63,13 +74,6 @@ class Square{
 
   jump(){
     this.velocity += this.lift;
-    if(counter%2 == 0){
-      value = 0;
-    }
-    else if(counter%2 != 0){
-      value = 250;
-    }
-    counter += 1;
   }
 
   move(){
@@ -83,14 +87,8 @@ class Square{
   }
 
   display(){
-    if(counter%2 == 0){
-      fill(0, 50);
-    }
-    else{
-      fill(250, 50);
-    }
+    fill(250, 50);
     stroke(255, 204, 0);
     rect(this.x, this.y, 25, 25);
   }
-
 }
