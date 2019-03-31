@@ -26,7 +26,7 @@ class MachineSquare{
       this.brain = brain.copy();
       this.brain.mutate(mutate);
     } else {
-      this.brain = new NeuralNetwork(2, 8, 2);
+      this.brain = new NeuralNetwork(4, 8, 2);
     }
 
   }
@@ -57,8 +57,10 @@ class MachineSquare{
       inputs[0] = map(closest.x1, this.x, width, 0 , 1);
       // x position of furthest triangle group
       inputs[1] = map(closest.maxX, this.x, width, 0, 1);
-      // gap between current and next triangle group
-      //inputs[2] = map(next.x1 - closest.maxX, this.x, width, 0, 1);
+      //next triangle group
+      inputs[2] = map(next.x1, this.x, width, 0, 1);
+      inputs[3] = map(next.maxX, this.x, width, 0, 1);
+
 
       let action = this.brain.predict(inputs);
 

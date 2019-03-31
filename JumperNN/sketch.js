@@ -107,6 +107,7 @@ let slider;
 let incr = 0;
 let highScore = 0;
 
+let bestHit = false;
 let runBest = false;
 let runUser = false;
 
@@ -203,12 +204,18 @@ function draw(){
 
   if(runBest){
 
-    bestSquare.think(tri_arr);
-    bestSquare.move();
+    if(!bestHit){
+      bestSquare.think(tri_arr);
+      bestSquare.move();
+    }
 
     for (let j = 0; j < tri_arr.length; j++) {
       if (tri_arr[j].hits(bestSquare) && !alive) {
         resetSketch();
+        break;
+      }
+      if (tri_arr[j].hits(bestSquare)) {
+        bestHit = true;
         break;
       }
     }
@@ -217,8 +224,9 @@ function draw(){
     if(currentScore > highScore){
       highScore = currentScore;
     }
-
-    bestSquare.display();
+    if(!bestHit){
+      bestSquare.display();
+    }
 
   }else{
 
@@ -260,6 +268,7 @@ function draw(){
     if (tri_arr[i].hits(user_Square)){
       user_Square.score = 0;
       alive = false;
+      bestHit = false;
       toggleUser();
         break;
       }
